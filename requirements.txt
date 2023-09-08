@@ -10,3 +10,4 @@ streamlit_chat
 gradio
 pinecone-client
 #unstructured
+pypdf
