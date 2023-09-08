@@ -76,10 +76,9 @@ headers = {"Authorization": f"Bearer {hf_token}"}
 hf_embeddings = HFEmbeddings(api_url, headers)
 
 #Pinecone账号：
-PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')"5f07b52e-2a16-42a3-89c4-8899c584109e"
-PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT')"asia-southeast1-gcp-free"
-PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME')"myindex-allminilm-l6-v2-384"
-
+PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
+PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT')
+PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME')
 #def generate_random_string(length):
 #    letters = string.ascii_letters
 #    random_string = ''.join(random.choice(letters) for _ in range(length))
