@@ -27,7 +27,7 @@ from langchain.document_loaders import PyPDFLoader
 from dotenv import load_dotenv
 load_dotenv()
 
-loader = UnstructuredPDFLoader("60LEADERSONAI.pdf") 
+loader = PyPDFLoader('60LEADERSONAI.pdf')
 data = loader.load()
 
 print()
