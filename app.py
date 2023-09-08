@@ -22,6 +22,8 @@ from time import sleep
 import os
 import random
 import string
+from langchain.document_loaders import PyPDFLoader
+
 from dotenv import load_dotenv
 load_dotenv()
 
