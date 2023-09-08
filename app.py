@@ -25,7 +25,7 @@ import string
 from dotenv import load_dotenv
 load_dotenv()
 
-loader = UnstructuredPDFLoader("D:/ChatGPTApps/AskBookLangChainOpenAI/TheAPP/valuation.pdf") 
+loader = UnstructuredPDFLoader("60LEADERSONAI.pdf") 
 data = loader.load()
 
 print()
