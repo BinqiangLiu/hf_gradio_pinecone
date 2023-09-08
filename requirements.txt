@@ -1,0 +1,11 @@
+huggingface_hub
+langchain
+pandas
+PyPDF2
+python-dotenv
+Requests
+sentence_transformers
+streamlit
+streamlit_chat
+gradio
+pinecone-client
