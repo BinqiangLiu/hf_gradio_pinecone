@@ -9,4 +9,4 @@ streamlit
 streamlit_chat
 gradio
 pinecone-client
-unstructured
+#unstructured
