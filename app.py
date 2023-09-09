@@ -1,4 +1,4 @@
-import atexit
+#import atexit
 import gradio as gr
 #from langchain.document_loaders import UnstructuredPDFLoader
 from langchain.document_loaders import PyPDFLoader
@@ -98,12 +98,12 @@ index_name = PINECONE_INDEX_NAME
 #namespace = random_string
 namespace = "HF-GRADIO"
 
-def exit_handler():
-    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-    index_namespace_to_delete = pinecone.Index(index_name=index_name)
-    index_namespace_to_delete.delete(delete_all=True, namespace=namespace)
+#def exit_handler():
+#    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+#    index_namespace_to_delete = pinecone.Index(index_name=index_name)
+#    index_namespace_to_delete.delete(delete_all=True, namespace=namespace)
 
-atexit.register(exit_handler)
+#atexit.register(exit_handler)
 
 pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 #vector_db = Pinecone.from_texts(db_texts, hf_embeddings, index_name=index_name, namespace=namespace)
