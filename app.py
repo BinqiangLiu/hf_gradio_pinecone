@@ -1,6 +1,7 @@
 import atexit
 import gradio as gr
-from langchain.document_loaders import UnstructuredPDFLoader
+#from langchain.document_loaders import UnstructuredPDFLoader
+from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 #from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Pinecone
@@ -22,12 +23,13 @@ from time import sleep
 import os
 import random
 import string
-from langchain.document_loaders import PyPDFLoader
 
 from dotenv import load_dotenv
 load_dotenv()
 
-loader = PyPDFLoader('60LEADERSONAI.pdf')
+file_path = os.path.join(os.getcwd(), "60LEADERSONAI.pdf")
+#loader = PyPDFLoader("60LEADERSONAI.pdf")
+loader = PyPDFLoader(file_path)
 data = loader.load()
 
 print()
