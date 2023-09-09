@@ -110,9 +110,6 @@ print("***********************************")
 print("Pinecone Vector/Embedding DB Ready.")
 print()
 
-repo_id = "HuggingFaceH4/starchat-beta"
-os.environ["HUGGINGFACEHUB_API_TOKEN"] = "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"
-
 llm = HuggingFaceHub(repo_id=repo_id,
                      model_kwargs={"min_length":100,
                                    "max_new_tokens":1024, "do_sample":True,
