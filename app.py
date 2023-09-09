@@ -123,13 +123,16 @@ llm = HuggingFaceHub(repo_id=repo_id,
 chain = load_qa_chain(llm=llm, chain_type="stuff")
 
 def run_chain(user_query):
-    print("Your query:\n"+user_query)
-    vector_db_from_index = Pinecone.from_existing_index(index_name, hf_embeddings, namespace=namespace)
-    ss_results = vector_db_from_index.similarity_search(query=user_query, namespace=namespace, k=5)
-    initial_ai_response = chain.run(input_documents=ss_results, question=user_query)
-    temp_ai_response = initial_ai_response.partition('<|end|>')[0]
-    final_ai_response = temp_ai_response.replace('\n', '')
-    return final_ai_response
+    if user_query !="" and not user_query.strip().isspace() and not user_query.isspace():
+      print("Your query:\n"+user_query)
+      vector_db_from_index = Pinecone.from_existing_index(index_name, hf_embeddings, namespace=namespace)
+      ss_results = vector_db_from_index.similarity_search(query=user_query, namespace=namespace, k=5)
+      initial_ai_response = chain.run(input_documents=ss_results, question=user_query)
+      temp_ai_response = initial_ai_response.partition('<|end|>')[0]
+      final_ai_response = temp_ai_response.replace('\n', '')
+      return final_ai_response
+    else:
+      print("Invalid inputs.")  
 
 iface = gr.Interface(fn=run_chain, inputs="text", outputs="text", title="AI Response")
 iface.launch()
