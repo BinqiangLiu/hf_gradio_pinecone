@@ -93,7 +93,8 @@ def generate_random_string(length):
 random_string = generate_random_string(8)
 
 index_name = PINECONE_INDEX_NAME
-namespace = random_string
+#namespace = random_string
+namespace = "HF-GRADIO"
 
 def exit_handler():
     pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
