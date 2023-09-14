@@ -92,11 +92,6 @@ def generate_random_string(length):
     return ''.join(random.choice(letters) for i in range(length))      
 random_string = generate_random_string(8)
 
-index_name = PINECONE_INDEX_NAME
-print(index_name)
-namespace = random_string
-#namespace = "HF-GRADIO-0909"
-
 #def exit_handler():
 #    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 #    index_namespace_to_delete = pinecone.Index(index_name=index_name)
@@ -105,14 +100,14 @@ namespace = random_string
 #atexit.register(exit_handler)
 
 pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-index_name = pinecone.Index(index_name)
+index_name = PINECONE_INDEX_NAME
 print(index_name)
+namespace = random_string
+
 vector_db = Pinecone.from_texts(db_texts, hf_embeddings, index_name=index_name, namespace=namespace)
 #vector_db = Pinecone.from_texts([t.page_content for t in db_texts], hf_embeddings, index_name=index_name, namespace=namespace)
 #docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name, namespace=namespace)
-print("***********************************")
 print("Pinecone Vector/Embedding DB Ready.")
-print()
 
 llm = HuggingFaceHub(repo_id=repo_id,
                      model_kwargs={"min_length":100,
