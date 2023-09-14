@@ -81,11 +81,6 @@ PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT')
 PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME')
 print(PINECONE_INDEX_NAME)
-#def generate_random_string(length):
-#    letters = string.ascii_letters
-#    random_string = ''.join(random.choice(letters) for _ in range(length))
-#    return random_string
-#random_string = generate_random_string(8)
 
 def generate_random_string(length):
     letters = string.ascii_lowercase
@@ -96,20 +91,26 @@ random_string = generate_random_string(8)
 #    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 #    index_namespace_to_delete = pinecone.Index(index_name=index_name)
 #    index_namespace_to_delete.delete(delete_all=True, namespace=namespace)
-
 #atexit.register(exit_handler)
 
 pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 index_name = PINECONE_INDEX_NAME
+#index_name = pinecone.Index(index_name)
 print(index_name)
 namespace = random_string
-
-
+print(namespace)
 
 vector_db = Pinecone.from_texts(db_texts, hf_embeddings, index_name=index_name, namespace=namespace)
 #vector_db = Pinecone.from_texts([t.page_content for t in db_texts], hf_embeddings, index_name=index_name, namespace=namespace)
 #docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name, namespace=namespace)
 print("Pinecone Vector/Embedding DB Ready.")
+
+index_name_extracted=pinecone.list_indexes()
+print(index_name_extracted)
+
+index_current = pinecone.Index(index_name=index_name)
+index_status=index_current.describe_index_stats() 
+print(index_status)
 
 llm = HuggingFaceHub(repo_id=repo_id,
                      model_kwargs={"min_length":100,
@@ -128,6 +129,10 @@ def run_chain(user_query):
       initial_ai_response = chain.run(input_documents=ss_results, question=user_query)
       temp_ai_response = initial_ai_response.partition('<|end|>')[0]
       final_ai_response = temp_ai_response.replace('\n', '')
+      print(final_ai_response)
+      print(index_name_extracted)
+      print(index_status)      
+      print(namespace) 
       return final_ai_response
     else:
       print("Invalid inputs.")  
