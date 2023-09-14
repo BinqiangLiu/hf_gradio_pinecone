@@ -25,6 +25,11 @@ import string
 from dotenv import load_dotenv
 load_dotenv()
 
+def generate_random_string(length):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(length))      
+random_string = generate_random_string(10)
+
 file_path = os.path.join(os.getcwd(), "valuation.pdf")
 #loader = PyPDFLoader("60LEADERSONAI.pdf")
 #loader = PyPDFLoader(file_path)
@@ -50,16 +55,13 @@ class HFEmbeddings:
     def __init__(self, api_url, headers):
         self.api_url = api_url
         self.headers = headers
-
     def get_embeddings(self, texts):
         response = requests.post(self.api_url, headers=self.headers, json={"inputs": texts, "options": {"wait_for_model": True}})
         embeddings = response.json()
         return embeddings
-
     def embed_documents(self, texts):
         embeddings = self.get_embeddings(texts)
         return embeddings
-
     def __call__(self, texts):
         return self.embed_documents(texts)
 
@@ -77,16 +79,6 @@ PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT')
 PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME')
 print(PINECONE_INDEX_NAME)
-
-def generate_random_string(length):
-    letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(length))      
-random_string = generate_random_string(10)
-
-def exit_handler():
-    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-    index_namespace_to_delete = pinecone.Index(index_name=index_name)
-    index_namespace_to_delete.delete(delete_all=True, namespace=namespace)   
 
 pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 index_name = PINECONE_INDEX_NAME
@@ -111,7 +103,7 @@ llm = HuggingFaceHub(repo_id=repo_id,
                                    "top_k":50,
                                    "top_p":0.95, "eos_token_id":49155})
 
-prompt_template = """You are a very helpful AI assistant. Please ONLY use the givens context to answer the user's input question. If you don't know the answer, just say that you don't know.
+prompt_template = """You are a very helpful AI assistant. Please ONLY use the given context to answer the user's input question. If you don't know the answer, just say that you don't know.
 Context: {context}
 Question: {question}
 Helpful AI Repsonse:
