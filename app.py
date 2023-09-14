@@ -104,6 +104,8 @@ index_name = PINECONE_INDEX_NAME
 print(index_name)
 namespace = random_string
 
+
+
 vector_db = Pinecone.from_texts(db_texts, hf_embeddings, index_name=index_name, namespace=namespace)
 #vector_db = Pinecone.from_texts([t.page_content for t in db_texts], hf_embeddings, index_name=index_name, namespace=namespace)
 #docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name, namespace=namespace)
