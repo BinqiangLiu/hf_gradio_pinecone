@@ -1,4 +1,3 @@
-#import atexit
 import gradio as gr
 #from langchain.document_loaders import UnstructuredPDFLoader
 from langchain.document_loaders import PyPDFLoader
@@ -30,7 +29,6 @@ file_path = os.path.join(os.getcwd(), "valuation.pdf")
 #loader = PyPDFLoader("60LEADERSONAI.pdf")
 #loader = PyPDFLoader(file_path)
 #data = loader.load()
-#text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
 #db_texts = text_splitter.split_documents(data)
 
 data = PdfReader(file_path)
@@ -85,23 +83,18 @@ def generate_random_string(length):
     return ''.join(random.choice(letters) for i in range(length))      
 random_string = generate_random_string(10)
 
-#def exit_handler():
-#    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-#    index_namespace_to_delete = pinecone.Index(index_name=index_name)
-#    index_namespace_to_delete.delete(delete_all=True, namespace=namespace)
-#atexit.register(exit_handler)
+def exit_handler():
+    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+    index_namespace_to_delete = pinecone.Index(index_name=index_name)
+    index_namespace_to_delete.delete(delete_all=True, namespace=namespace)   
 
 pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 index_name = PINECONE_INDEX_NAME
-#index_name = pinecone.Index(index_name)
 print(index_name)
 namespace = random_string
 print(namespace)
 
 vector_db = Pinecone.from_texts(db_texts, hf_embeddings, index_name=index_name, namespace=namespace)
-#vector_db = Pinecone.from_texts([t.page_content for t in db_texts], hf_embeddings, index_name=index_name, namespace=namespace)
-#docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name, namespace=namespace)
-print("***********************************")
 print("Pinecone Vector/Embedding DB Ready.")
 
 index_name_extracted=pinecone.list_indexes()
@@ -118,11 +111,6 @@ llm = HuggingFaceHub(repo_id=repo_id,
                                    "top_k":50,
                                    "top_p":0.95, "eos_token_id":49155})
 
-#prompt_template = """You are a very helpful AI assistant. Please ONLY use {context} to answer the user's input question. If you don't know the answer, just say that you don't know. DON'T try to make up an answer and do NOT go beyond the given context without the user's explicitly asking you to do so!
-#Question: {question}
-#Helpful AI Repsonse:
-#"""
-
 prompt_template = """You are a very helpful AI assistant. Please ONLY use the givens context to answer the user's input question. If you don't know the answer, just say that you don't know.
 Context: {context}
 Question: {question}
@@ -132,8 +120,6 @@ Helpful AI Repsonse:
 PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
 
 chain = load_qa_chain(llm=llm, chain_type="stuff", prompt=PROMPT)
-
-#chain = load_qa_chain(llm=llm, chain_type="stuff")
 
 def run_chain(user_query):
     pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
@@ -154,5 +140,20 @@ def run_chain(user_query):
     else:
       print("Invalid inputs.")  
 
-iface = gr.Interface(fn=run_chain, inputs="text", outputs="text", title="AI Response")
-iface.launch()
+def delete_index_namespace():
+    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+    index_namespace_to_delete = pinecone.Index(index_name=index_name)
+    index_namespace_to_delete.delete(delete_all=True, namespace=namespace)
+    print("Pinecone Index Namespace: "+namespace+" has been deleted!")
+        
+with gr.Blocks() as demo:
+    gr.Markdown("Enter your question & click Get AI Response. Remember to clear data before exiting program.")
+    with gr.Row():
+        user_query = gr.Textbox(label="User query input box", placeholder="Enter your query here.")
+        ai_response = gr.Textbox(label="AI Response display area", placeholder="AI Response to be displayed here.")
+    query_btn = gr.Button("Get AI Response")
+    ai_res_btn = gr.Button("Exit & Clear Data")
+    query_btn.click(fn=run_chain, inputs=user_query, outputs=ai_response)
+    ai_res_btn.click(fn=delete_index_namespace)
+
+demo.launch()
