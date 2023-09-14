@@ -147,12 +147,12 @@ def delete_index_namespace():
     print("Pinecone Index Namespace: "+namespace+" has been deleted!")
         
 with gr.Blocks() as demo:
-    gr.Markdown("Enter your question & click Get AI Response. Remember to clear data before exiting program.")
+    gr.Markdown("Enter your question below & click Get AI Response. Remember to clear data before exiting program.")
     with gr.Row():
         user_query = gr.Textbox(label="User query input box", placeholder="Enter your query here.")
         ai_response = gr.Textbox(label="AI Response display area", placeholder="AI Response to be displayed here.")
     query_btn = gr.Button("Get AI Response")
-    ai_res_btn = gr.Button("Exit & Clear Data")
+    ai_res_btn = gr.Button("Clear Data & Exit")
     query_btn.click(fn=run_chain, inputs=user_query, outputs=ai_response)
     ai_res_btn.click(fn=delete_index_namespace)
 
