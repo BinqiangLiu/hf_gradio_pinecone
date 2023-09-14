@@ -86,14 +86,14 @@ PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME')
 #    return random_string
 #random_string = generate_random_string(8)
 
-#def generate_random_string(length):
-#    letters = string.ascii_lowercase
-#    return ''.join(random.choice(letters) for i in range(length))      
-#random_string = generate_random_string(8)
+def generate_random_string(length):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(length))      
+random_string = generate_random_string(8)
 
 index_name = PINECONE_INDEX_NAME
-#namespace = random_string
-namespace = "HF-GRADIO-0909"
+namespace = random_string
+#namespace = "HF-GRADIO-0909"
 
 #def exit_handler():
 #    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
