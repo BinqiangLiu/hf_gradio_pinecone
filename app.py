@@ -80,6 +80,7 @@ hf_embeddings = HFEmbeddings(api_url, headers)
 PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT')
 PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME')
+print(PINECONE_INDEX_NAME)
 #def generate_random_string(length):
 #    letters = string.ascii_letters
 #    random_string = ''.join(random.choice(letters) for _ in range(length))
@@ -92,6 +93,7 @@ def generate_random_string(length):
 random_string = generate_random_string(8)
 
 index_name = PINECONE_INDEX_NAME
+print(index_name)
 namespace = random_string
 #namespace = "HF-GRADIO-0909"
 
@@ -103,6 +105,8 @@ namespace = random_string
 #atexit.register(exit_handler)
 
 pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+index_name = pinecone.Index(index_name)
+print(index_name)
 vector_db = Pinecone.from_texts(db_texts, hf_embeddings, index_name=index_name, namespace=namespace)
 #vector_db = Pinecone.from_texts([t.page_content for t in db_texts], hf_embeddings, index_name=index_name, namespace=namespace)
 #docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name, namespace=namespace)
