@@ -23,7 +23,6 @@ from time import sleep
 import os
 import random
 import string
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -76,7 +75,6 @@ headers = {"Authorization": f"Bearer {hf_token}"}
 
 hf_embeddings = HFEmbeddings(api_url, headers)
 
-#Pinecone账号：
 PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT')
 PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME')
@@ -85,7 +83,7 @@ print(PINECONE_INDEX_NAME)
 def generate_random_string(length):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(length))      
-random_string = generate_random_string(8)
+random_string = generate_random_string(10)
 
 #def exit_handler():
 #    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
@@ -103,6 +101,7 @@ print(namespace)
 vector_db = Pinecone.from_texts(db_texts, hf_embeddings, index_name=index_name, namespace=namespace)
 #vector_db = Pinecone.from_texts([t.page_content for t in db_texts], hf_embeddings, index_name=index_name, namespace=namespace)
 #docsearch = Pinecone.from_texts([t.page_content for t in texts], embeddings, index_name=index_name, namespace=namespace)
+print("***********************************")
 print("Pinecone Vector/Embedding DB Ready.")
 
 index_name_extracted=pinecone.list_indexes()
@@ -119,20 +118,38 @@ llm = HuggingFaceHub(repo_id=repo_id,
                                    "top_k":50,
                                    "top_p":0.95, "eos_token_id":49155})
 
-chain = load_qa_chain(llm=llm, chain_type="stuff")
+#prompt_template = """You are a very helpful AI assistant. Please ONLY use {context} to answer the user's input question. If you don't know the answer, just say that you don't know. DON'T try to make up an answer and do NOT go beyond the given context without the user's explicitly asking you to do so!
+#Question: {question}
+#Helpful AI Repsonse:
+#"""
+
+prompt_template = """You are a very helpful AI assistant. Please ONLY use the givens context to answer the user's input question. If you don't know the answer, just say that you don't know.
+Context: {context}
+Question: {question}
+Helpful AI Repsonse:
+"""
+
+PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
+
+chain = load_qa_chain(llm=llm, chain_type="stuff", prompt=PROMPT)
+
+#chain = load_qa_chain(llm=llm, chain_type="stuff")
 
 def run_chain(user_query):
+    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
     if user_query !="" and not user_query.strip().isspace() and not user_query.isspace():
       print("Your query:\n"+user_query)
       vector_db_from_index = Pinecone.from_existing_index(index_name, hf_embeddings, namespace=namespace)
       ss_results = vector_db_from_index.similarity_search(query=user_query, namespace=namespace, k=5)
-      initial_ai_response = chain.run(input_documents=ss_results, question=user_query)
+      initial_ai_response = chain.run(input_documents=ss_results, question=user_query, return_only_outputs=True)        
+      #initial_ai_response=chain({"input_documents": ss_results, "question": user_query}, return_only_outputs=True)            
       temp_ai_response = initial_ai_response.partition('<|end|>')[0]
       final_ai_response = temp_ai_response.replace('\n', '')
       print(final_ai_response)
+      print(index_status)
       print(index_name_extracted)
-      print(index_status)      
       print(namespace) 
+      print("****************")
       return final_ai_response
     else:
       print("Invalid inputs.")  
