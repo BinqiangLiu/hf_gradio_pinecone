@@ -121,7 +121,7 @@ def delete_index_namespace():
     index_name_extracted=pinecone.list_indexes()
     index_current = pinecone.Index(index_name=index_name)
     index_status=index_current.describe_index_stats()    
-    index_namespace_to_delete = pinecone.Index(index_name=index_current)
+    index_namespace_to_delete = pinecone.Index(index_name=index_name)
     index_namespace_to_delete.delete(delete_all=True, namespace=namespace)
     print("Pinecone Index Namespace: "+namespace+" has been deleted!")
         
