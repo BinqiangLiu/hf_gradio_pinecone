@@ -7,18 +7,13 @@ from langchain.vectorstores import Pinecone
 import pinecone
 import requests
 import sys
-#from langchain.prompts.chat import (ChatPromptTemplate, HumanMessagePromptTemplate, SystemMessagePromptTemplate)
 from langchain.chains.question_answering import load_qa_chain
-#from langchain.chains import RetrievalQA
 from langchain import PromptTemplate
 from langchain import HuggingFaceHub
 from PyPDF2 import PdfReader
 #from langchain.document_loaders import TextLoader
-#from sentence_transformers.util import semantic_search
 from pathlib import Path
 from time import sleep
-#import pandas as pd
-#import torch
 import os
 import random
 import string
@@ -31,8 +26,7 @@ def generate_random_string(length):
 random_string = generate_random_string(8)
 
 file_path = os.path.join(os.getcwd(), "valuation.pdf")
-#loader = PyPDFLoader("60LEADERSONAI.pdf")
-#loader = PyPDFLoader(file_path)
+#loader = PyPDFLoader(file_path)/ PyPDFLoader("60LEADERSONAI.pdf")
 #data = loader.load()
 #db_texts = text_splitter.split_documents(data)
 
@@ -46,7 +40,7 @@ for i, page in enumerate(data.pages):
         text_splitter = RecursiveCharacterTextSplitter(        
 #            separator = "\n",
             chunk_size = 1000,
-            chunk_overlap  = 100, #striding over the text
+            chunk_overlap  = 100,
             length_function = len,
         )
         db_texts = text_splitter.split_text(raw_text)
@@ -78,23 +72,17 @@ hf_embeddings = HFEmbeddings(api_url, headers)
 PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 PINECONE_ENVIRONMENT = os.getenv('PINECONE_ENVIRONMENT')
 PINECONE_INDEX_NAME = os.getenv('PINECONE_INDEX_NAME')
-print(PINECONE_INDEX_NAME)
 
 pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 index_name = PINECONE_INDEX_NAME
-print(index_name)
 namespace = random_string
-print(namespace)
 
 vector_db = Pinecone.from_texts(db_texts, hf_embeddings, index_name=index_name, namespace=namespace)
 print("Pinecone Vector/Embedding DB Ready.")
 
 index_name_extracted=pinecone.list_indexes()
-print(index_name_extracted)
-
 index_current = pinecone.Index(index_name=index_name)
 index_status=index_current.describe_index_stats() 
-print(index_status)
 
 llm = HuggingFaceHub(repo_id=repo_id,
                      model_kwargs={"min_length":100,
@@ -102,19 +90,19 @@ llm = HuggingFaceHub(repo_id=repo_id,
                                    "temperature":0.1,
                                    "top_k":50,
                                    "top_p":0.95, "eos_token_id":49155})
-
 prompt_template = """You are a very helpful AI assistant. Please ONLY use the given context to answer the user's input question. If you don't know the answer, just say that you don't know.
 Context: {context}
 Question: {question}
 Helpful AI Repsonse:
 """
-
 PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
-
 chain = load_qa_chain(llm=llm, chain_type="stuff", prompt=PROMPT)
 
 def run_chain(user_query):
     pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+    index_name_extracted=pinecone.list_indexes()
+    index_current = pinecone.Index(index_name=index_name)
+    index_status=index_current.describe_index_stats()
     if user_query !="" and not user_query.strip().isspace() and not user_query.isspace():
       print("Your query:\n"+user_query)
       vector_db_from_index = Pinecone.from_existing_index(index_name, hf_embeddings, namespace=namespace)
@@ -123,18 +111,17 @@ def run_chain(user_query):
       #initial_ai_response=chain({"input_documents": ss_results, "question": user_query}, return_only_outputs=True)            
       temp_ai_response = initial_ai_response.partition('<|end|>')[0]
       final_ai_response = temp_ai_response.replace('\n', '')
-      print(final_ai_response)
-      print(index_status)
-      print(index_name_extracted)
-      print(namespace) 
-      print("****************")
+      print("final_ai_response:"+final_ai_response)
       return final_ai_response
     else:
       print("Invalid inputs.")  
 
-def delete_index_namespace():
+def delete_index_namespace():  
     pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-    index_namespace_to_delete = pinecone.Index(index_name=index_name)
+    index_name_extracted=pinecone.list_indexes()
+    index_current = pinecone.Index(index_name=index_name)
+    index_status=index_current.describe_index_stats()    
+    index_namespace_to_delete = pinecone.Index(index_name=index_current)
     index_namespace_to_delete.delete(delete_all=True, namespace=namespace)
     print("Pinecone Index Namespace: "+namespace+" has been deleted!")
         
